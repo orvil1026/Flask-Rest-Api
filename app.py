@@ -13,6 +13,7 @@ client = MongoClient('mongodb://localhost:27017/')
 db = client['test-database']
 collection = db['test-collection']
 
+
 def parse_json(data):
     return json.loads(json_util.dumps(data))
 
@@ -33,9 +34,20 @@ class Users(Resource):
         parser.add_argument('email', required=True, help="Name cannot be blank!")
 
         args = parser.parse_args()
+
+        username_count = collection.count_documents({"username": args['username']})
+        email_count = collection.count_documents({"email": args['email']})
+
+
+        if username_count != 0 and email_count != 0:
+            return jsonify({'status':'error','message': 'Username and Email already exists!'})
+        elif username_count != 0:
+            return jsonify({'status':'error','message': 'Username already exists!'})
+        elif email_count != 0:
+            return jsonify({'status':'error','message': 'Email already exists!'})
         
         collection.insert_one({'username': args['username'], 'email': args['email'], 'password': args['password']})
-        return jsonify(args)
+        return jsonify({'status':'success','message': 'User Added Successfully!'})
         
 
 # @app.route('/add_data')

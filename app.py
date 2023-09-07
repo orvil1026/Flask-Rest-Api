@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, flash, abort, request, jsonify
 from pymongo import MongoClient
 from flask_restful import Resource, Api, reqparse
-from bson import json_util
+from bson import json_util, ObjectId
 import json
 import pprint
 
@@ -17,6 +17,7 @@ collection = db['test-collection']
 def parse_json(data):
     return json.loads(json_util.dumps(data))
 
+#Get all users and add new user
 class Users(Resource):
 
     def get(self):
@@ -27,7 +28,7 @@ class Users(Resource):
         return parse_json(result)    
 
     def post(self):
-        
+        #get the data from the request
         parser = reqparse.RequestParser()
         parser.add_argument('username', required=True, help="Name cannot be blank!")
         parser.add_argument('password', required=True, help="Name cannot be blank!")
@@ -35,6 +36,7 @@ class Users(Resource):
 
         args = parser.parse_args()
 
+        #check if username and email already exists
         username_count = collection.count_documents({"username": args['username']})
         email_count = collection.count_documents({"email": args['email']})
 
@@ -48,7 +50,28 @@ class Users(Resource):
         
         collection.insert_one({'username': args['username'], 'email': args['email'], 'password': args['password']})
         return jsonify({'status':'success','message': 'User Added Successfully!'})
-        
+
+class UserIdSpecific(Resource):
+
+    def get(self, id):
+        print(len(id))
+        if len(id) == 24:
+            result = []
+            cursor = collection.find({"_id": ObjectId(id)})
+            for doc in cursor:
+                result.append(doc)
+
+            if result == []:
+                return jsonify({'status':'error','message': 'No User present with that ID!'})
+            return parse_json(result)
+
+        else:
+            return jsonify({'status':'error','message': 'Invalid ID!'})
+          
+        # return jsonify({'status':'success','message': 'User Added Successfully!'})
+
+
+
 
 # @app.route('/add_data')
 # def add_data():
@@ -66,7 +89,7 @@ class Users(Resource):
 
 
 api.add_resource(Users, '/users')
-
+api.add_resource(UserIdSpecific, '/users/<id>')
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)

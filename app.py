@@ -20,13 +20,15 @@ def parse_json(data):
 #Get all users and add new user
 class Users(Resource):
 
+    # get all users
     def get(self):
         result = []
         for user in collection.find():
             result.append(user)
             
-        return parse_json(result)    
-
+        return parse_json(result)   
+     
+    # add a user
     def post(self):
         #get the data from the request
         parser = reqparse.RequestParser()
@@ -53,8 +55,9 @@ class Users(Resource):
 
 class UserIdSpecific(Resource):
 
+    # get a user by id
     def get(self, id):
-        print(len(id))
+        
         if len(id) == 24:
             result = []
             cursor = collection.find({"_id": ObjectId(id)})
@@ -68,10 +71,25 @@ class UserIdSpecific(Resource):
         else:
             return jsonify({'status':'error','message': 'Invalid ID!'})
           
-        # return jsonify({'status':'success','message': 'User Added Successfully!'})
 
+    def delete(self, id):
+        try:
+            result = []
+            cursor = collection.find_one_and_delete({"_id": ObjectId(id)})
 
+            if cursor == None:
+                raise Exception('No User present with that ID!')
+            # for doc in  cursor:
+            #     result.append(doc)
+            # print(result)
+            # if result == []:
+            #     return jsonify({'status':'error','message': 'No User present with that ID!'})
 
+        except Exception as e: 
+            print(e)
+            return jsonify({'status':'error','message': 'No User present with that ID!'})
+    
+        return jsonify({'status':'success','message': 'User Deleted Successfully!'})
 
 # @app.route('/add_data')
 # def add_data():

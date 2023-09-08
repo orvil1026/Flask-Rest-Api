@@ -1,9 +1,8 @@
-from flask import Flask, render_template, redirect, url_for, flash, abort, request, jsonify
+from flask import Flask, jsonify
 from pymongo import MongoClient
 from flask_restful import Resource, Api, reqparse
 from bson import json_util, ObjectId
 import json
-import pprint
 
 app = Flask(__name__)
 api = Api(app)
@@ -16,6 +15,7 @@ collection = db['test-collection']
 
 def parse_json(data):
     return json.loads(json_util.dumps(data))
+
 
 #Get all users and add new user
 class Users(Resource):
@@ -53,6 +53,8 @@ class Users(Resource):
         collection.insert_one({'username': args['username'], 'email': args['email'], 'password': args['password']})
         return jsonify({'status':'success','message': 'User Added Successfully!'})
 
+
+#Get a user by id, update a user by id, delete a user by id
 class UserIdSpecific(Resource):
 
     # get a user by id
@@ -71,7 +73,7 @@ class UserIdSpecific(Resource):
         else:
             return jsonify({'status':'error','message': 'Invalid ID!'})
           
-
+    # delete a user by id
     def delete(self, id):
         try:
             result = []
@@ -79,11 +81,6 @@ class UserIdSpecific(Resource):
 
             if cursor == None:
                 raise Exception('No User present with that ID!')
-            # for doc in  cursor:
-            #     result.append(doc)
-            # print(result)
-            # if result == []:
-            #     return jsonify({'status':'error','message': 'No User present with that ID!'})
 
         except Exception as e: 
             print(e)
@@ -91,23 +88,32 @@ class UserIdSpecific(Resource):
     
         return jsonify({'status':'success','message': 'User Deleted Successfully!'})
 
-# @app.route('/add_data')
-# def add_data():
-#     collection.insert_one({'name': 'John'})
-#     return 'Added Data!'
+    # update a user by id
+    def put(self, id):
 
-# @app.route('/add_data1')
-# def add_data1():
-#     collection.insert_one({'name': 'Orvil'})
-#     return 'Added Data!'
+        parser = reqparse.RequestParser()
+        parser.add_argument('username')
+        parser.add_argument('password')
+        parser.add_argument('email')
 
-# @app.route('/')
-# def hello_world():
-#     return 'Hello World!'
+        args = parser.parse_args()
 
+        try:
 
+            cursor = collection.find_one_and_update({"_id": ObjectId(id)}, { "$set": { "username": args['username'], "password": args["password"], "email": args["email"] } },)
+            if cursor == None:
+                raise Exception('No User present with that ID!')
+
+        except Exception as e: 
+            print(e)
+            return jsonify({'status':'error','message': 'No User present with that ID!'})
+    
+        return jsonify({'status':'success','message': 'User Updated Successfully!'})
+
+#add the resources
 api.add_resource(Users, '/users')
 api.add_resource(UserIdSpecific, '/users/<id>')
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)

@@ -7,7 +7,11 @@ import json
 app = Flask(__name__)
 api = Api(app)
 
-client = MongoClient('mongodb://localhost:27017/')
+client = MongoClient(host='test_mongodb',
+                         port=27017, 
+                         username='root', 
+                         password='pass',
+                        authSource="admin")
 
 db = client['test-database']
 collection = db['test-collection']
@@ -33,8 +37,8 @@ class Users(Resource):
         #get the data from the request
         parser = reqparse.RequestParser()
         parser.add_argument('username', required=True, help="Name cannot be blank!")
-        parser.add_argument('password', required=True, help="Name cannot be blank!")
-        parser.add_argument('email', required=True, help="Name cannot be blank!")
+        parser.add_argument('password', required=True, help="Password cannot be blank!")
+        parser.add_argument('email', required=True, help="Email cannot be blank!")
 
         args = parser.parse_args()
 

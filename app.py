@@ -87,7 +87,6 @@ class UserIdSpecific(Resource):
                 raise Exception('No User present with that ID!')
 
         except Exception as e: 
-            print(e)
             return jsonify({'status':'error','message': 'No User present with that ID!'})
     
         return jsonify({'status':'success','message': 'User Deleted Successfully!'})
@@ -104,7 +103,31 @@ class UserIdSpecific(Resource):
 
         try:
 
-            cursor = collection.find_one_and_update({"_id": ObjectId(id)}, { "$set": { "username": args['username'], "password": args["password"], "email": args["email"] } },)
+            #getting the old values
+            result = []
+            cursor = collection.find({"_id": ObjectId(id)})
+            for doc in cursor:
+                result.append(doc)
+
+            #getting the new values
+            oldUsername = result[0]['username']
+            oldEmail = result[0]['email']
+            oldPassword = result[0]['password']
+
+            newUsername = args['username']
+            newEmail = args['email']
+            newPassword = args['password']
+
+            #check if new username, email and password is None and if it is then assign the old values
+            if newUsername == None:
+                newUsername = oldUsername
+            if newEmail == None:
+                newEmail = oldEmail
+            if newPassword == None:
+                newPassword = oldPassword
+
+
+            cursor = collection.find_one_and_update({"_id": ObjectId(id)}, { "$set": { "username": newUsername, "password": newPassword, "email": newEmail } },)
             if cursor == None:
                 raise Exception('No User present with that ID!')
 

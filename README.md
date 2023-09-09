@@ -31,8 +31,11 @@ docker-compose up
 ![image](https://github.com/orvil1026/Flask-Rest-Api/assets/58859056/d195d459-ed08-461f-ad16-6f229cc5a864)
 
  **PUT /users/<id> -  Updates the user**
- ![image](https://github.com/orvil1026/Flask-Rest-Api/assets/58859056/673df412-9f70-44a3-a79a-c1072eb0b332)
+![image](https://github.com/orvil1026/Flask-Rest-Api/assets/58859056/cd7b9881-e1b5-424f-a85b-9f82bb8ac9b5)
+![image](https://github.com/orvil1026/Flask-Rest-Api/assets/58859056/def4bc07-efa2-412f-9b81-350ae25abf15)
+
 
 **DELETE /users/<id> - Deletes the user** 
 ![image](https://github.com/orvil1026/Flask-Rest-Api/assets/58859056/c27b8bdf-22e6-402d-9b22-915d546ca51b)
+![image](https://github.com/orvil1026/Flask-Rest-Api/assets/58859056/f5c17b8e-4648-4b40-9716-dccd89f45456)
 
